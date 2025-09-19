@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Davicom device configuration
+#
+
+config DM9051
+        tristate "DAVICOM DM9051 SPI"
+        depends on SPI
+        select MII
+        select CRC32
+        help
+          SPI driver for Davicom 9051 SPI attached network chip.
