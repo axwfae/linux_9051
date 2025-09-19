@@ -1,0 +1,38 @@
+&spi0 {
+	clock-frequency = <100000000>;
+	pinctrl-0 = <&spi0_pins_a &spi0_pins_b>;
+	pinctrl-1 = <&spi0_pins_c>;
+	pinctrl-names = "default", "sleep";
+	spi_slave_mode = <0>;
+	spi0_cs_number = <1>;
+        spi0_cs_bitmap = <1>;
+	status = "okay";
+
+	eth1: dm9051@0 {
+		compatible = "davicom,dm9051";
+		/* spi 速度，建议先用 30Mhz 开测上向调整，因為要看 mcu 有没有对 miso 引脚做延时，若是有可以更快！
+                                                        像全志就有支持，可以达 80Mhz, 很多平台在 40Mhz 就开始报错了。是 mcu 端的问题  */
+		spi-max-frequency=<80000000>;                 
+
+		reg = <0x0>;
+		spi-rx-bus-width = <0x01>;
+		spi-tx-bus-width = <0x01>;
+
+		/* spi 最大一次读写长度，这个有関于 mcu 硬件的要求，这个请和 mcu 厂家寻问，像 mtk (1024) ,全志 (1020) 都有限制  */
+                mcu_spi_max_len = /bits/ 16 <1000>;
+
+		/* 硬件复位引脚，若是没有，可以屏掉，系统就不会去调用 gpio 复位  */
+                reset-gpios = <&pio PC 6 GPIO_ACTIVE_LOW>;
+
+		/* 硬件中断引脚，若是没有，可以屏掉，系统会改用软中断查寻式处理  */
+                interrupt-parent = <&pio>;
+                interrupts = <PC 7 IRQ_TYPE_EDGE_FALLING>;
+
+		/* 默认配置  mac 地址，可以由这儿先行配置载入的  mac 地址  
+                                                        若是屏掉，系统会先由芯片读出 mac 地址，若是此 地址可用，就用该地址。若是不可用，就会使用乱数产生地址 */
+                local-mac-address = [ 00 60 6e 99 5a a5 ];
+
+		status = "okay";
+
+	};
+};
